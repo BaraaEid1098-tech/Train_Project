@@ -11,6 +11,8 @@ using Train_Project.Handlers;
 using Train_Project.Middleware;
 using Train_Project.Services;
 using Train_Project.Services.Interfaces;
+using Microsoft.AspNetCore.Identity;
+using Train_Project.Authentication.AuthEntity;
 
 namespace Train_Project
 {
@@ -22,7 +24,33 @@ namespace Train_Project
 
 
             builder.Services.AddControllers();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(options =>
+            {
+                options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+                    Description = "Enter: Bearer {your JWT token}"
+                });
+
+                options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+            });
 
 
             builder.Services.AddDbContext<AppDbContext>(options =>
@@ -36,6 +64,7 @@ namespace Train_Project
             builder.Services.AddScoped<IStandardRoomServices, StandardRoomServices>();
             builder.Services.AddScoped<IVipRoomService, VipRoomService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<IPasswordHasher<Users>, PasswordHasher<Users>>();
 
 
 
@@ -57,6 +86,7 @@ namespace Train_Project
                         ValidateAudience = true,
                         ValidAudience = jwtoptions.Audience,
                         ValidateIssuer = true,
+                       
                         ValidIssuer = jwtoptions.Issuer,
                         ValidateIssuerSigningKey = true,
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtoptions.SignKey))
@@ -91,6 +121,7 @@ namespace Train_Project
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
             app.UseMiddleware<RateLimitMiddleware>();
             app.UseMiddleware<ExceptionMiddleware>();

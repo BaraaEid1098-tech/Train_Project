@@ -139,14 +139,14 @@ namespace Train_Project.Services
                 return null;
 
             return await _appDbContext.RoomComponents
-                .Where(rc => rc.RoomId == id && rc.ComponentId != null)
-                .Select(rc => new RoomServiceDto
-                {
-                    ComponentId = rc.ComponentId!.Value,
-                    Name = rc.Component!.Name ?? string.Empty,
-                    Type = rc.Component!.Type ?? string.Empty
-                })
-                .ToListAsync();
+    .Where(rc => rc.RoomId == id)
+    .Select(rc => new RoomServiceDto
+    {
+        ComponentId = rc.ComponentId,
+        Name = rc.Component!.Name ?? string.Empty,
+        Type = rc.Component!.Type ?? string.Empty
+    })
+    .ToListAsync();
         }
 
         public async Task<LateCheckOutResultDto?> RequestLateCheckOutAsync(int id, LateCheckOutRequestDto dto)
