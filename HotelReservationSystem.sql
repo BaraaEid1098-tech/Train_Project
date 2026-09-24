@@ -89,5 +89,7 @@ CREATE TABLE [Users] (
     [Username] nvarchar(max) NOT NULL,
     [Password] nvarchar(max) NOT NULL,
     [Roles] nvarchar(max) NOT NULL,
+    [RefreshToken] nvarchar(max) NULL,
+    [RefreshTokenExpiryTime] datetime2 NULL,
     CONSTRAINT [PK_Users] PRIMARY KEY ([Id])
 );
